@@ -6,6 +6,8 @@ authors:
   - given-names: "Elmasnur"
     family-names: "Yılmaz"
     email: "elmasnrylmz@gmail.com"
+repository-code: "https://github.com/elmasnuryilmaz/citecheck"
+url: "https://github.com/elmasnuryilmaz/citecheck"
 license: MIT
 version: 0.1.0
 date-released: "2026-09-27"
