@@ -1,11 +1,11 @@
 """Doğrulama: paket, makaledeki SCAR sonucunu yeniden üretiyor mu?
 
 Prototip (src/60_coupling_core.py) ile üretilen results/V4_scar.csv'ye karşı
-paketlenmiş citecheck.coupling.measure() karşılaştırılır.
+paketlenmiş citeqc.coupling.measure() karşılaştırılır.
 """
 import numpy as np, pandas as pd, pathlib
 from scipy import stats
-from citecheck import coupling, mapping, diagnostics
+from citeqc import coupling, mapping, diagnostics
 
 ROOT=pathlib.Path("/Users/elmas/Desktop/Alerji")
 P=ROOT/"data/processed"

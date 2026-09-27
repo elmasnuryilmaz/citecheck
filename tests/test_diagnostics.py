@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
-from citecheck import diagnostics as dx
+from citeqc import diagnostics as dx
 
 
 # ---------------------------------------------------------------- panel

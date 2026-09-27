@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
-from citecheck import coupling
+from citeqc import coupling
 
 
 def test_recovers_coupled_and_decoupled_markers(synthetic):

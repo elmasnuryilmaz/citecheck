@@ -1,8 +1,8 @@
-"""citecheck — protein/mRNA coupling and artefact diagnostics for CITE-seq data.
+"""citeqc — protein/mRNA coupling and artefact diagnostics for CITE-seq data.
 
 Two entry points:
 
-    from citecheck import coupling, diagnostics
+    from citeqc import coupling, diagnostics
 
 `coupling.measure()` quantifies, for each antibody, how well its signal is
 predicted by its cognate transcript — the question "can I read this marker

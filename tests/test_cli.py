@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from citecheck.cli import main
+from citeqc.cli import main
 
 
 def _write(tmp_path, synthetic):

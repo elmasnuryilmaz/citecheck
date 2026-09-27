@@ -1,4 +1,4 @@
-# citecheck
+# citeqc
 
 Measure how well each antibody in a CITE-seq experiment is predicted by its own
 transcript — and check your analysis for four artefacts that produce confident,
@@ -18,20 +18,20 @@ CD45RA was the **lowest-coupled marker in every dataset that measured it**
 ## Install
 
 ```bash
-pip install citecheck
+pip install citeqc
 ```
 
 Optional `.h5mu` support:
 
 ```bash
-pip install 'citecheck[anndata]'
+pip install 'citeqc[anndata]'
 ```
 
 ## Measure coupling
 
 ```python
 import pandas as pd
-from citecheck import coupling, mapping
+from citeqc import coupling, mapping
 
 adt  = ...   # cells x antibodies, CLR-normalised
 rna  = ...   # cells x genes, log-normalised
@@ -48,7 +48,7 @@ result["pct_rank"] = coupling.rank_percentile(result)
 Same thing from the shell:
 
 ```bash
-citecheck couple --adt adt.csv --rna rna.csv --meta meta.csv --out coupling.csv
+citeqc couple --adt adt.csv --rna rna.csv --meta meta.csv --out coupling.csv
 ```
 
 Add `--normalise` if your matrices are raw counts, and `--transpose` if they are
@@ -77,7 +77,7 @@ Five checks, each built on a negative control the data already contains. They
 answer one question: *what would this analysis report if there were no signal?*
 
 ```python
-from citecheck import diagnostics as dx
+from citeqc import diagnostics as dx
 
 dx.panel_consistency(adt, meta, by="donor")   # is one panel measured everywhere?
 dx.ambient_check(my_zscores, controls=["CD19", "CD20"])
@@ -90,7 +90,7 @@ Each returns a `Finding` with `.passed`, a `.summary` you can print, and
 `.detail` with the numbers.
 
 ```bash
-citecheck diagnose --adt adt.csv --meta meta.csv --pvalues p.csv
+citeqc diagnose --adt adt.csv --meta meta.csv --pvalues p.csv
 ```
 
 Exit code is non-zero if any check flags, so it drops into CI.
@@ -114,8 +114,8 @@ latter all ribosomal. After resampling to a fixed number of cells per group,
 documented post-transcriptional mechanism exists.
 
 ```bash
-citecheck map --query cd45
-citecheck map --mechanism vesicular
+citeqc map --query cd45
+citeqc map --mechanism vesicular
 ```
 
 `map_antibodies` tries the raw name, a normalised form (`CD3--UCHT1-TSA` → `CD3`),

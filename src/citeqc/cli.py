@@ -1,4 +1,4 @@
-"""Command-line interface: citecheck couple | diagnose | map"""
+"""Command-line interface: citeqc couple | diagnose | map"""
 from __future__ import annotations
 import argparse
 import sys
@@ -81,7 +81,7 @@ def cmd_map(a) -> int:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(
-        prog="citecheck",
+        prog="citeqc",
         description="Protein~mRNA coupling and artefact diagnostics for CITE-seq data.")
     sub = p.add_subparsers(dest="cmd", required=True)
 

@@ -1,13 +1,13 @@
 cff-version: 1.2.0
-title: "citecheck: protein-mRNA coupling and artefact diagnostics for CITE-seq data"
+title: "citeqc: protein-mRNA coupling and artefact diagnostics for CITE-seq data"
 message: "If you use this software, please cite it using these metadata."
 type: software
 authors:
   - given-names: "Elmasnur"
     family-names: "Yılmaz"
     email: "elmasnrylmz@gmail.com"
-repository-code: "https://github.com/elmasnuryilmaz/citecheck"
-url: "https://github.com/elmasnuryilmaz/citecheck"
+repository-code: "https://github.com/elmasnuryilmaz/citeqc"
+url: "https://github.com/elmasnuryilmaz/citeqc"
 license: MIT
 version: 0.1.0
 date-released: "2026-09-27"

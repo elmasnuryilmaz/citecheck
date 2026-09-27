@@ -27,7 +27,7 @@ def from_mudata(path, adt_key: str = "prot", rna_key: str = "rna",
         import mudata
     except ImportError as e:                                  # pragma: no cover
         raise ImportError("reading .h5mu needs the optional dependency: "
-                          "pip install 'citecheck[anndata]'") from e
+                          "pip install 'citeqc[anndata]'") from e
     md = mudata.read(str(path))
     for k in (adt_key, rna_key):
         if k not in md.mod:

@@ -1,5 +1,5 @@
 import pytest
-from citecheck import mapping
+from citeqc import mapping
 
 
 def test_bundled_table_is_sane():
