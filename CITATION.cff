@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "citecheck: protein-mRNA coupling and artefact diagnostics for CITE-seq data"
+message: "If you use this software, please cite it using these metadata."
+type: software
+authors:
+  - given-names: "Elmasnur"
+    family-names: "Yılmaz"
+    email: "elmasnrylmz@gmail.com"
+license: MIT
+version: 0.1.0
+date-released: "2026-09-27"
+keywords:
+  - CITE-seq
+  - single-cell
+  - multimodal
+  - quality control
+  - post-transcriptional regulation
+abstract: >-
+  Measures how well each antibody in a CITE-seq experiment is predicted by its
+  cognate transcript, and checks the analysis for five artefacts that produce
+  confident but false positives: heterogeneous antibody panels, ambient
+  contamination, group-size confounding, degenerate p-value distributions and
+  saturated bounded values. Ships a 145-entry antibody-to-gene table with
+  annotations for documented post-transcriptional mechanisms.
