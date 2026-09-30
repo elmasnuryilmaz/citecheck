@@ -128,3 +128,37 @@ def test_panel_consistency_separates_unstained_groups(synthetic):
     assert f.detail["empty_groups"] == ["d2"]
     assert f.detail["n_core"] == adt.shape[1]          # core from stained donors only
     assert "no antibody data" in f.summary
+
+
+# --------------------------------------------- the finding behind control_check
+def test_control_check_keeps_its_old_name():
+    assert dx.ambient_check is dx.control_check
+
+
+def test_control_check_does_not_blame_ambient_signal():
+    stat = pd.Series({"CD3": 3.4, "CD8": 3.1, "CD19": 3.3, "CD20": 3.5})
+    msg = dx.control_check(stat, ["CD19", "CD20"]).summary
+    assert "group size" in msg and "held-out" in msg
+    assert "regress out the control markers" not in msg
+
+
+def test_skew_alone_makes_a_size_gradient_that_equal_n_removes():
+    """The mechanism found on real data, reproduced with no ambient signal at all.
+
+    Every group is drawn from the SAME skewed, zero-inflated distribution, so no
+    marker truly depends on group size. Yet the typical mean of a right-skewed
+    variable rises with the number of cells averaged, so every feature drifts up.
+    Averaging exactly n cells per group removes it.
+    """
+    rng = np.random.default_rng(0)
+    sizes = rng.integers(5, 400, 200)
+
+    def cells(n):
+        return rng.lognormal(0, 1.5, size=(n, 40)) * (rng.random((n, 40)) < 0.3)
+
+    groups = [cells(n) for n in sizes]
+    all_cells = pd.DataFrame([g.mean(axis=0) for g in groups])
+    flagged = dx.size_confounding(all_cells, sizes)
+    assert not flagged.passed and flagged.detail["direction"] == "up"
+    equal_n = pd.DataFrame([g[rng.choice(len(g), 5, replace=False)].mean(axis=0) for g in groups])
+    assert dx.size_confounding(equal_n, sizes).passed

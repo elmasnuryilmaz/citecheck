@@ -1,7 +1,7 @@
 # citeqc
 
 Measure how well each antibody in a CITE-seq experiment is predicted by its own
-transcript — and check your analysis for four artefacts that produce confident,
+transcript — and check your analysis for artefacts that produce confident,
 biologically plausible false positives.
 
 The short version of why this exists: **a third to a half of surface markers
@@ -54,6 +54,30 @@ citeqc couple --adt adt.csv --rna rna.csv --meta meta.csv --out coupling.csv
 Add `--normalise` if your matrices are raw counts, and `--transpose` if they are
 features × cells.
 
+`measure(..., return_raw=True)` also returns every stratum × draw observation,
+which is what a donor-level bootstrap needs (resample donors, recompute the
+per-marker medians, and ask how often a marker keeps its rank).
+
+### Is a low value specific to that marker?
+
+A correlation of 0.02 is hard to read on its own: it may be a decoupled marker,
+or a marker the assay cannot measure. `specificity` correlates every antibody
+with every gene in a background set, using the same stratification, grouping and
+depth adjustment, and reports where the cognate gene falls in that antibody's row.
+
+```python
+matrix, summary = coupling.specificity(adt, rna, meta, pairs)
+summary[["marker", "cognate_rho", "spec_percentile", "rank_of_cognate"]]
+```
+
+`spec_percentile` of 1.0 means the protein tracks its own transcript better than
+any other gene; about 0.5 means the cognate gene is indistinguishable from the
+background. The background is descriptive rather than a null (genes that truly
+co-vary with the antibody sit in it), and a marker can be low on `measure` yet
+specific here — weak coupling is not the same as no coupling. In our own data
+CD45RA's transcript, *PTPRC*, ranked 110th of 111 genes in the CD45RA row, while
+the same gene ranked first for CD45RO.
+
 ### How to read the result
 
 Absolute correlations depend on how finely you split cell types, so they are
@@ -75,12 +99,13 @@ your ceiling; markers far below it are not readable from RNA.
 
 Five checks, each built on a negative control the data already contains. They
 answer one question: *what would this analysis report if there were no signal?*
+A check flags a problem; it does not say where the problem comes from.
 
 ```python
 from citeqc import diagnostics as dx
 
 dx.panel_consistency(adt, meta, by="donor")   # is one panel measured everywhere?
-dx.ambient_check(my_zscores, controls=["CD19", "CD20"])
+dx.control_check(my_zscores, controls=["CD19", "CD20"])
 dx.size_confounding(pseudobulk, sizes=n_cells_per_group)
 dx.pvalue_sanity(my_pvalues)
 dx.saturation_check(psi_matrix)               # bounded values: PSI, fractions
@@ -98,15 +123,24 @@ Exit code is non-zero if any check flags, so it drops into CI.
 | Check | What goes wrong | How you can tell |
 |---|---|---|
 | `panel_consistency` | Antibody panels differ between donors; "absent" and "not measured" get confused | Panel size varies by donor; some donors unstained |
-| `ambient_check` | Ambient signal makes every marker look real | Lineage-impossible markers (CD19 on T cells) score like genuine ones |
+| `control_check` | The statistic carries a marker-independent gradient | Lineage-impossible markers (CD19 on T cells) score like genuine ones |
 | `size_confounding` | Group means drift with group size, inflating low-expressed features | Almost every feature moves the same direction with size |
 | `pvalue_sanity` | Constant or saturated features flatten the null | p-values *depleted* near zero, or a spike in the interior |
 | `saturation_check` | Bounded features pinned at 0/1 carry no information but enter FDR | Large fraction identical across all samples |
 
 `size_confounding` deserves emphasis. In our own analysis, before correction it
-produced 8,689 of 11,382 genes at FDR<0.05 — 8,621 "up" against 68 "down", the
-latter all ribosomal. After resampling to a fixed number of cells per group,
-**zero** genes survived. `diagnostics.equal_n_resample` does the resampling.
+produced 8,881 of 11,364 genes at FDR<0.05 — 8,797 "up" against 84 "down". After
+resampling to a fixed number of cells per group, **2** genes survived (both
+"down"). `diagnostics.equal_n_resample` does the resampling.
+
+`control_check` and `size_confounding` are meant to be run in that order, and the
+second one first if the first one flags. In that analysis the four control
+markers scored a mean |Z| of 2.56 against 3.66 for genuine T-cell markers; equal-N
+resampling took the controls to 0.39, whereas regressing out an ambient score
+built from the *other* controls left them at 2.40. We first attributed the
+gradient to ambient signal, and that attribution was wrong: an ambient
+correction should be judged on control markers held out of the correction.
+`ambient_check` remains as an alias of `control_check`.
 
 ## The antibody → gene table
 
@@ -132,7 +166,9 @@ limitation.
 
 It does not normalise for you beyond the helpers in `coupling`, denoise ADT
 (see totalVI or dsb), or correct ambient RNA (see SoupX, CellBender — note that
-neither addresses the antibody signal). It measures and it checks.
+neither addresses the antibody signal). It measures and it checks. Run the
+measurement on the normalisation you trust and compare ranks between them; the
+accompanying paper does this for CLR, log-CP10K, isotype subtraction and dsb.
 
 ## Development
 
@@ -141,7 +177,7 @@ pip install -e '.[test]'
 pytest
 ```
 
-39 tests, including synthetic data where the coupled and decoupled markers are
+50 tests, including synthetic data where the coupled and decoupled markers are
 known by construction, and a validation script that reproduces published results
 on real data to Spearman ρ = 1.000.
 

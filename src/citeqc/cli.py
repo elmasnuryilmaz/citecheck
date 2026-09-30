@@ -46,7 +46,7 @@ def cmd_diagnose(a) -> int:
         findings.append(diagnostics.panel_consistency(adt, meta, by=a.by))
     if a.stat:
         s = read_matrix(a.stat).iloc[:, 0]
-        findings.append(diagnostics.ambient_check(s, a.controls))
+        findings.append(diagnostics.control_check(s, a.controls))
     if a.groups:
         g = read_matrix(a.groups)
         if a.size_col not in g.columns:
@@ -108,7 +108,7 @@ def main(argv=None) -> int:
     d.add_argument("--transpose", action="store_true")
     d.add_argument("--stat", help="one-column table: per-marker test statistic")
     d.add_argument("--controls", nargs="+", default=["CD19", "CD20", "CD14", "CD16"],
-                   help="lineage-impossible markers for the cells analysed")
+                   help="markers absent from the cells analysed")
     d.add_argument("--groups", help="groups x features, plus a size column")
     d.add_argument("--size-col", default="n_cells")
     d.add_argument("--pvalues", help="one-column table of p-values")

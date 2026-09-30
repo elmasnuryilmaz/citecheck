@@ -9,7 +9,7 @@ authors:
 repository-code: "https://github.com/elmasnuryilmaz/citeqc"
 url: "https://github.com/elmasnuryilmaz/citeqc"
 license: MIT
-version: 0.1.0
+version: 0.1.1
 date-released: "2026-09-27"
 keywords:
   - CITE-seq

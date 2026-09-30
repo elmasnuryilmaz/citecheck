@@ -13,8 +13,8 @@ plausible-looking false positives in multimodal single-cell analysis.
 Each check is built around a negative control rather than a threshold.
 """
 from .mapping import load_map, map_antibodies, MECHANISMS
-from .coupling import measure, clr
+from .coupling import measure, specificity, clr
 from . import diagnostics
 
-__version__ = "0.1.0"
-__all__ = ["measure", "clr", "load_map", "map_antibodies", "MECHANISMS", "diagnostics"]
+__version__ = "0.1.1"
+__all__ = ["measure", "specificity", "clr", "load_map", "map_antibodies", "MECHANISMS", "diagnostics"]

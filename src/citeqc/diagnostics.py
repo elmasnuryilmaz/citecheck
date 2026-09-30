@@ -1,14 +1,19 @@
-"""Four checks for artefacts that produce confident-looking false positives.
+"""Five checks for artefacts that produce confident-looking false positives.
 
 Each check is built around the same question: *what would this analysis report
 if there were no signal at all?* None of them needs a ground truth — they use
 negative controls that the data already contains.
 
     panel_consistency   antibody panel differs between donors/batches
-    ambient_check       lineage-impossible markers behave like real signal
+    control_check       markers that cannot be expressed behave like real signal
     size_confounding    a per-group statistic tracks group size
     pvalue_sanity       the p-value distribution is not what a null looks like
     saturation_check    bounded values (PSI, fractions) are pinned at 0/1
+
+`control_check` diagnoses; it does not explain. When it flags, test group size
+(`size_confounding`, `equal_n_resample`) before reaching for an ambient-signal
+correction: in the data this package was developed on, resampling to equal N
+removed the gradient and regressing out ambient signal did not.
 """
 from __future__ import annotations
 from dataclasses import dataclass, field
@@ -16,7 +21,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-__all__ = ["Finding", "panel_consistency", "ambient_check", "size_confounding",
+__all__ = ["Finding", "panel_consistency", "control_check", "ambient_check", "size_confounding",
            "pvalue_sanity", "saturation_check", "equal_n_resample"]
 
 
@@ -67,17 +72,21 @@ def panel_consistency(adt: pd.DataFrame, meta: pd.DataFrame, by: str = "donor",
              n_total=adt.shape[1], empty_groups=empty, panel_versions=versions))
 
 
-# --------------------------------------------------------------- 2. ambient
-def ambient_check(stat: pd.Series, control_markers, signal_markers=None,
+# --------------------------------------------------------------- 2. controls
+def control_check(stat: pd.Series, control_markers, signal_markers=None,
                   ratio_threshold: float = 0.5) -> Finding:
     """Do markers that *cannot* be expressed behave like real signal?
 
     `stat` is your own per-marker test statistic (Z, -log10 p, effect size...).
-    `control_markers` are lineage-impossible for the cells analysed — CD19/CD20
-    on T cells, CD3 on monocytes. Whatever they show is contamination.
+    `control_markers` should be absent from the cells analysed — CD19/CD20 on
+    T cells, CD3 on monocytes. Choose markers that are truly absent: CD16, CD56
+    and CD161 occur on CD8 T-cell subsets and make poor controls there.
 
-    Flags when controls reach a comparable magnitude to real markers, which
-    means the statistic is measuring background, not biology.
+    Flags when the controls reach a comparable magnitude to the real markers.
+    That means the statistic contains a marker-independent gradient. It does
+    not say where the gradient comes from. Group size is the first suspect
+    (`size_confounding`); ambient signal is the second, and a correction for it
+    should be judged on control markers *held out* of the correction.
     """
     s = pd.Series(stat).abs()
     ctrl = s.reindex([m for m in control_markers if m in s.index]).dropna()
@@ -88,13 +97,17 @@ def ambient_check(stat: pd.Series, control_markers, signal_markers=None,
     ratio = float(ctrl.mean() / sig.mean()) if len(sig) and sig.mean() else np.inf
     ok = ratio < ratio_threshold
     return Finding(
-        "ambient_check", ok,
+        "control_check", ok,
         (f"negative controls are {ratio:.2f}x the real-marker magnitude"
-         + ("" if ok else " — statistic is dominated by ambient signal; "
-                          "regress out the control markers and re-run")),
+         + ("" if ok else " — the statistic contains a marker-independent gradient. "
+                          "Test group size first (size_confounding / equal_n_resample); "
+                          "if an ambient correction is tried, judge it on held-out controls")),
         dict(ratio=ratio, control_mean=float(ctrl.mean()),
              signal_mean=float(sig.mean()) if len(sig) else None,
              controls_used=list(ctrl.index)))
+
+
+ambient_check = control_check          # previous name, kept so existing code keeps working
 
 
 # ------------------------------------------------------------ 3. group size
