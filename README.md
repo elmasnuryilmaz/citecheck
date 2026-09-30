@@ -168,7 +168,8 @@ It does not normalise for you beyond the helpers in `coupling`, denoise ADT
 (see totalVI or dsb), or correct ambient RNA (see SoupX, CellBender — note that
 neither addresses the antibody signal). It measures and it checks. Run the
 measurement on the normalisation you trust and compare ranks between them; the
-accompanying paper does this for CLR, log-CP10K, isotype subtraction and dsb.
+accompanying paper does this for CLR, log-CP10K, isotype subtraction, dsb and totalVI
+(under totalVI the headline marker's rank weakens, which is the kind of result this comparison is for).
 
 ## Development
 
