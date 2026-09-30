@@ -19,8 +19,9 @@ keywords:
   - post-transcriptional regulation
 abstract: >-
   Measures how well each antibody in a CITE-seq experiment is predicted by its
-  cognate transcript, and checks the analysis for five artefacts that produce
-  confident but false positives: heterogeneous antibody panels, ambient
-  contamination, group-size confounding, degenerate p-value distributions and
-  saturated bounded values. Ships a 145-entry antibody-to-gene table with
+  cognate transcript, reports whether the cognate gene stands out among other
+  genes, and runs five checks for artefacts that produce confident but false
+  positives: heterogeneous antibody panels, marker-independent gradients in
+  negative controls, group-size confounding, degenerate p-value distributions
+  and saturated bounded values. Ships a 145-entry antibody-to-gene table with
   annotations for documented post-transcriptional mechanisms.

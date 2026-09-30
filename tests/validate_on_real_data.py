@@ -3,11 +3,13 @@
 Prototip (src/60_coupling_core.py) ile üretilen results/V4_scar.csv'ye karşı
 paketlenmiş citeqc.coupling.measure() karşılaştırılır.
 """
-import numpy as np, pandas as pd, pathlib
+import os, sys, numpy as np, pandas as pd, pathlib
 from scipy import stats
 from citeqc import coupling, mapping, diagnostics
 
-ROOT=pathlib.Path("/Users/elmas/Desktop/Alerji")
+ROOT=pathlib.Path(os.environ.get("PROJECT_ROOT", "."))
+if not (ROOT/"results/V4_scar.csv").exists():
+    sys.exit("set PROJECT_ROOT to the analysis repository (needs results/V4_scar.csv and data/processed/)")
 P=ROOT/"data/processed"
 meta=pd.read_parquet(P/"gse275871_cellmeta.parquet")
 CORE=pd.read_csv(P/"core_adt_panel.csv")["marker"].tolist()
